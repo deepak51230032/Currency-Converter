@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currency Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: skyblue;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .converter {
+      background: wheat;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      width: 380px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .input-box {
+      margin: 15px 0;
+    }
+    select, input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin: 5px;
+      font-size: 16px;
+    }
+    .flag {
+      width: 32px;
+      height: 22px;
+      vertical-align: middle;
+      margin-right: 8px;
+      border: 1px solid black;
+      border-radius: 4px;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="converter">
+    <h2>🌍 Currency Converter</h2>
+    
+    <div class="input-box">
+      <input type="number" id="amount" placeholder="Enter amount" value="1" min="1">
+    </div>
+
+    <div class="input-box">
+      <span id="from-flag"></span>
+      <select id="from-currency"></select>
+    </div>
+
+    <div class="input-box">
+      <span id="to-flag"></span>
+      <select id="to-currency"></select>
+    </div>
+
+    <button onclick="convertCurrency()">Convert</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const currencyList = {
+      "USD": "us",
+      "EUR": "eu",
+      "INR": "in",
+      "GBP": "gb",
+      "AUD": "au",
+      "CAD": "ca",
+      "SGD": "sg",
+      "JPY": "jp",
+      "CNY": "cn"
+    };
+
+    const fromCurrency = document.getElementById("from-currency");
+    const toCurrency = document.getElementById("to-currency");
+    const fromFlag = document.getElementById("from-flag");
+    const toFlag = document.getElementById("to-flag");
+
+    // Populate dropdowns
+    for (let code in currencyList) {
+      let option1 = document.createElement("option");
+      option1.value = code;
+      option1.text = code;
+      fromCurrency.appendChild(option1);
+
+      let option2 = document.createElement("option");
+      option2.value = code;
+      option2.text = code;
+      toCurrency.appendChild(option2);
+    }
+
+    // Default values
+    fromCurrency.value = "USD";
+    toCurrency.value = "INR";
+    updateFlags();
+
+    // Update flags when selection changes
+    fromCurrency.addEventListener("change", updateFlags);
+    toCurrency.addEventListener("change", updateFlags);
+
+    function updateFlags() {
+      fromFlag.innerHTML = `<img class="flag" src="https://flagcdn.com/32x24/${currencyList[fromCurrency.value]}.png">`;
+      toFlag.innerHTML = `<img class="flag" src="https://flagcdn.com/32x24/${currencyList[toCurrency.value]}.png">`;
+    }
+
+    async function convertCurrency() {
+      let amount = document.getElementById("amount").value;
+      let from = fromCurrency.value;
+      let to = toCurrency.value;
+
+      if (amount === "" || amount <= 0) {
+        alert("Enter a valid amount");
+        return;
+      }
+
+      const url = `https://api.exchangerate-api.com/v4/latest/${from}`;
+      let response = await fetch(url);
+      let data = await response.json();
+
+      let rate = data.rates[to];
+      let result = (amount * rate).toFixed(2);
+
+      document.getElementById("result").innerText = 
+        `${amount} ${from} = ${result} ${to}`;
+    }
+  </script>
+</body>
+</html>
